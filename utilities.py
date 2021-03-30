@@ -1,6 +1,7 @@
 from generalizationTrees import patientIdTree, genderTree, neighbourhoodTree, hypertensionTree, diabeteTree, alcoholismTree, handicapTree, ageTree
 from graph import generateGraph
 from sharedVars import kValue
+import itertools
 
 # RETURN COUNT * GROUP BY XXX SO K ANONYMITY COUNT DATA
 def getFrequencySet(anonymizedData, columns):
@@ -176,6 +177,28 @@ def graphFromCombinations(combinations):
         igraph = generateGraph([comb], False)
         resultingCombinations.append(igraph)
     return resultingCombinations
+
+# A PRIORI PRUNING
+def performAPrioriPruning(remainingNodes, newTuples):
+    print(" Remaining nodes "+str(remainingNodes))
+    print(" Generated tuples "+str(newTuples))
+    indexesToRemove = []
+
+    for i in range(0, len(newTuples)):
+        for comb in itertools.combinations(newTuples[i], len(newTuples[i])-1):
+            toCheck = list(comb)
+            print("Tup comb "+str(toCheck))
+            if toCheck not in remainingNodes:
+                indexesToRemove.append(i)
+
+        print("\n")
+
+    indexesToRemove = list(set(indexesToRemove))
+    for index in sorted(indexesToRemove, reverse=True):
+            newTuples.pop(index)
+    print(" Pruned tuples "+str(newTuples))
+
+    return newTuples
 
 
 # DISCARDS NODES THAT ARE NOT K-ANONYMOUS AND RETURNS THE K-ANONYMOUS NODES
