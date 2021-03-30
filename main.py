@@ -1,6 +1,6 @@
 import pandas as pd
 import itertools
-from utilities import getFrequencySet, isKAnonymized, anonymizeCombination, generalizeData, graphFromCombinations, discardNonKLevels
+from utilities import getFrequencySet, isKAnonymized, anonymizeCombination, generalizeData, graphFromCombinations, discardNonKLevels, performAPrioriPruning
 from sharedVars import kValue, maxDatasetSize, datasetName, outputName, quasiIdentifiers, combs0
 from graph import generateGraph
 import time
@@ -20,6 +20,8 @@ start = time.time()
 for i in range(0, len(quasiIdentifiers)):
 
     resultingCombinations = discardNonKLevels(resultingCombinations, kValue, editedData, i)
+
+    prioriRemaining = resultingCombinations
 
     if i != len(quasiIdentifiers)-1:
 
@@ -67,7 +69,13 @@ for i in range(0, len(quasiIdentifiers)):
                     nodesToRemove.append(n)
 
         for index in sorted(nodesToRemove, reverse=True):
-                resultingCombinations.pop(index)          
+                resultingCombinations.pop(index)        
+
+
+        if i > 0:
+            prioriRemaining = [j for s in prioriRemaining for j in s]
+            resultingCombinations = performAPrioriPruning(prioriRemaining, resultingCombinations)
+
     else:
         resultingCombinations = [j for s in resultingCombinations for j in s]
 
